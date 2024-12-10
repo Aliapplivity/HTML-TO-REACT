@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 const ViewEmployees = () => {
   const navigate = useNavigate();
-
   const [employees, setEmployees] = useState([]);
   const [nameFilter, setNameFilter] = useState("");
   const [ageFilter, setAgeFilter] = useState("");
+  const [isSidebarActive, setIsSidebarActive] = useState(false);
 
   useEffect(() => {
     const storedEmployees = JSON.parse(localStorage.getItem("employees")) || [];
@@ -39,69 +39,94 @@ const ViewEmployees = () => {
       (!ageFilter || employee.age.toString() === ageFilter)
   );
 
+  const toggleSidebar = () => {
+    setIsSidebarActive(!isSidebarActive);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarActive(false);
+  };
+
   const styles = {
+    burgerButton: {
+      position: "fixed",
+      top: "20px",
+      left: "20px",
+      background: "#0056b3",
+      color: "#fff",
+      border: "none",
+      borderRadius: "5px",
+      padding: "10px",
+      cursor: "pointer",
+      zIndex: 1100,
+      display: isSidebarActive ? "none" : "block",
+    },
     sidebar: {
+      position: "fixed",
+      top: 0,
+      left: isSidebarActive ? "0" : "-100%",
       width: "250px",
       height: "100vh",
       backgroundColor: "#f7f9fc",
       boxShadow: "2px 0 5px rgba(0, 0, 0, 0.1)",
-      position: "fixed",
-      left: "0",
-      top: "0",
       padding: "20px",
-      display: "flex",
-      flexDirection: "column",
-      fontFamily: "'Arial', sans-serif",
+      transition: "left 0.3s ease-in-out",
+      zIndex: 1000,
+    },
+    closeSidebarButton: {
+      position: "absolute",
+      top: "20px",
+      right: "20px",
+      background: "#dc3545",
+      color: "#fff",
+      border: "none",
+      borderRadius: "5px",
+      padding: "5px 10px",
+      cursor: "pointer",
     },
     sidebarHeader: {
       fontSize: "20px",
       fontWeight: "bold",
       marginBottom: "20px",
-      color: "#333",
     },
     sidebarList: {
       listStyle: "none",
-      padding: "0",
+      padding: 0,
     },
     sidebarListItem: {
-      margin: "15px 0",
+      marginBottom: "10px",
     },
     sidebarLink: {
       textDecoration: "none",
       color: "#555",
-      display: "flex",
-      alignItems: "center",
       fontSize: "16px",
     },
     sidebarLinkActive: {
       fontWeight: "bold",
       color: "#0056b3",
     },
-    mainContainer: {
-      display: "flex",
-    },
     mainContent: {
-      marginLeft: "270px",
+      marginLeft: isSidebarActive && window.innerWidth > 500 ? "250px" : "0",
       padding: "20px",
-      width: "100%",
+      transition: "margin-left 0.3s ease-in-out",
     },
     filters: {
       display: "flex",
-      justifyContent: "space-between",
+      flexWrap: "wrap",
+      gap: "10px",
       marginBottom: "20px",
+      marginLeft: "40px",
     },
     filterInput: {
+      flex: "1 1 calc(50% - 10px)",
       padding: "10px",
-      width: "48%",
       border: "1px solid #ccc",
       borderRadius: "5px",
     },
     tableContainer: {
-      margin: "20px auto",
-      width: "95%",
-      background: "#ffffff",
-      borderRadius: "10px",
-      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+      overflowX: "auto",
+      whiteSpace: "nowrap",
+      height: "calc(100vh - 180px)", // Adjust height dynamically
     },
     table: {
       width: "100%",
@@ -143,9 +168,14 @@ const ViewEmployees = () => {
   };
 
   return (
-    <div style={styles.mainContainer}>
-      {/* Sidebar */}
+    <div>
+      <button style={styles.burgerButton} onClick={toggleSidebar}>
+        ☰
+      </button>
       <div style={styles.sidebar}>
+        <button style={styles.closeSidebarButton} onClick={closeSidebar}>
+          X
+        </button>
         <h1 style={styles.sidebarHeader}>Dashboard</h1>
         <ul style={styles.sidebarList}>
           <li style={styles.sidebarListItem}>
@@ -154,14 +184,15 @@ const ViewEmployees = () => {
             </a>
           </li>
           <li style={styles.sidebarListItem}>
-            <a href="#" style={{ ...styles.sidebarLink, ...styles.sidebarLinkActive }}>
+            <a
+              href="#"
+              style={{ ...styles.sidebarLink, ...styles.sidebarLinkActive }}
+            >
               View Employees
             </a>
           </li>
         </ul>
       </div>
-
-      {/* Main Content */}
       <div style={styles.mainContent}>
         <div style={styles.filters}>
           <input

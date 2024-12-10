@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './Style.css';
 import { useNavigate } from 'react-router-dom';
 
 const InputEmployees = () => {
@@ -95,6 +96,7 @@ const InputEmployees = () => {
   };
 
   return (
+    <div className='allIncluded'>
     <div className="container">
       <div className="left-section">
         <div className="content">
@@ -109,6 +111,7 @@ const InputEmployees = () => {
           <h2>Employee Information</h2>
           <form onSubmit={handleSubmit} id="infoForm">
             <div className="name-age">
+              <div className='input-name'>
               <div className="form-group">
                 <label htmlFor="name">Name:</label>
                 <input
@@ -120,6 +123,9 @@ const InputEmployees = () => {
                 />
                 <span className="error-message">{errors.name}</span>
               </div>
+              </div>
+
+              <div className='input-age'>
               <div className="form-group">
                 <label htmlFor="age">Age:</label>
                 <input
@@ -132,10 +138,13 @@ const InputEmployees = () => {
                 <span className="error-message">{errors.age}</span>
               </div>
             </div>
+            </div>
 
             <div className="form-group">
               <label className="radioGroupLabel">Gender:</label>
               <div>
+                <div className='radio-h'>
+                <div className='gender-male'>
                 <input
                   type="radio"
                   name="gender"
@@ -144,6 +153,8 @@ const InputEmployees = () => {
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 />
                 Male
+                </div>
+                <div className='gender-female'>
                 <input
                   type="radio"
                   name="gender"
@@ -152,6 +163,8 @@ const InputEmployees = () => {
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 />
                 Female
+                </div>
+                </div>
               </div>
               <span className="error-message">{errors.gender}</span>
             </div>
@@ -210,6 +223,7 @@ const InputEmployees = () => {
           </form>
         </div>
       </div>
+    </div>
     </div>
   );
 };
