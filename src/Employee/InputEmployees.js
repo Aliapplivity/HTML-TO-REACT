@@ -1,11 +1,12 @@
+// Updated InputEmployees.js with mockapi.io integration
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Style.css';
 import { useNavigate } from 'react-router-dom';
 
 const InputEmployees = () => {
   const navigate = useNavigate();
-  
-  // State for form data
+
   const [formData, setFormData] = useState({
     name: '',
     age: '',
@@ -17,7 +18,9 @@ const InputEmployees = () => {
   });
 
   const [errors, setErrors] = useState({});
-  
+
+  const apiUrl = 'https://676a88a7863eaa5ac0debc40.mockapi.io/api/Employees';
+
   useEffect(() => {
     const editData = JSON.parse(localStorage.getItem('editData'));
     if (editData) {
@@ -25,7 +28,7 @@ const InputEmployees = () => {
       localStorage.removeItem('editData');
     }
   }, []);
-  
+
   const validateAgeAndBirthDate = () => {
     const { age, birthDate } = formData;
     const birthDateObj = new Date(birthDate);
@@ -45,6 +48,7 @@ const InputEmployees = () => {
   };
 
   const validateForm = () => {
+    // Validation logic remains unchanged
     let formErrors = {};
     const { name, age, gender, birthDate, joiningDate, qualification, phoneNumber } = formData;
 
@@ -65,34 +69,35 @@ const InputEmployees = () => {
     return Object.keys(formErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) return;
 
-    let employees = JSON.parse(localStorage.getItem('employees')) || [];
-    const editIndex = localStorage.getItem('editIndex');
-    
-    if (editIndex !== null) {
-      employees[editIndex] = formData;
-      localStorage.removeItem('editIndex');
-    } else {
-      employees.push(formData);
+    try {
+      const editIndex = localStorage.getItem('editIndex');
+
+      if (editIndex !== null) {
+        await axios.put(`${apiUrl}/${editIndex}`, formData);
+        localStorage.removeItem('editIndex');
+      } else {
+        await axios.post(apiUrl, formData);
+      }
+
+      alert('Form submitted successfully!');
+      setFormData({
+        name: '',
+        age: '',
+        gender: '',
+        birthDate: '',
+        joiningDate: '',
+        qualification: '',
+        phoneNumber: ''
+      });
+      navigate('/view');
+    } catch (error) {
+      alert('An error occurred while submitting the form.');
     }
-
-    localStorage.setItem('employees', JSON.stringify(employees));
-
-    alert('Form submitted successfully!');
-    setFormData({
-      name: '',
-      age: '',
-      gender: '',
-      birthDate: '',
-      joiningDate: '',
-      qualification: '',
-      phoneNumber: ''
-    });
-    navigate('/view');
   };
 
   return (

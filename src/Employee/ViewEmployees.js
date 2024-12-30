@@ -1,41 +1,52 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+// Updated ViewEmployees.js with mockapi.io integration
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ViewEmployees = () => {
   const navigate = useNavigate();
   const [employees, setEmployees] = useState([]);
-  const [nameFilter, setNameFilter] = useState("");
-  const [ageFilter, setAgeFilter] = useState("");
+  const [nameFilter, setNameFilter] = useState('');
+  const [ageFilter, setAgeFilter] = useState('');
   const [isSidebarActive, setIsSidebarActive] = useState(false);
 
+  const apiUrl = 'https://676a88a7863eaa5ac0debc40.mockapi.io/api/Employees';
+
   useEffect(() => {
-    const storedEmployees = JSON.parse(localStorage.getItem("employees")) || [];
-    setEmployees(storedEmployees);
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get(apiUrl);
+        setEmployees(response.data);
+      } catch (error) {
+        alert('An error occurred while fetching employees.');
+      }
+    };
+
+    fetchEmployees();
   }, []);
 
-  const handleEdit = (index) => {
-    const employee = employees[index];
-    localStorage.setItem("editIndex", index);
-    localStorage.setItem("editData", JSON.stringify(employee));
-    navigate("/input");
+  const handleEdit = (id) => {
+    const employee = employees.find(emp => emp.id === id);
+    localStorage.setItem('editIndex', id);
+    localStorage.setItem('editData', JSON.stringify(employee));
+    navigate('/input');
   };
 
-  const handleDelete = (index) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this employee?"
-    );
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this employee?');
     if (confirmDelete) {
-      const updatedEmployees = [...employees];
-      updatedEmployees.splice(index, 1);
-      localStorage.setItem("employees", JSON.stringify(updatedEmployees));
-      setEmployees(updatedEmployees);
+      try {
+        await axios.delete(`${apiUrl}/${id}`);
+        setEmployees(employees.filter(emp => emp.id !== id));
+      } catch (error) {
+        alert('An error occurred while deleting the employee.');
+      }
     }
   };
 
   const filteredEmployees = employees.filter(
-    (employee) =>
-      (!nameFilter ||
-        employee.name.toLowerCase().includes(nameFilter.toLowerCase())) &&
+    employee =>
+      (!nameFilter || employee.name.toLowerCase().includes(nameFilter.toLowerCase())) &&
       (!ageFilter || employee.age.toString() === ageFilter)
   );
 
@@ -184,10 +195,7 @@ const ViewEmployees = () => {
             </a>
           </li>
           <li style={styles.sidebarListItem}>
-            <a
-              href="#"
-              style={{ ...styles.sidebarLink, ...styles.sidebarLinkActive }}
-            >
+            <a href="#" style={{ ...styles.sidebarLink, ...styles.sidebarLinkActive }}>
               View Employees
             </a>
           </li>
@@ -226,8 +234,8 @@ const ViewEmployees = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredEmployees.map((employee, index) => (
-                <tr key={index}>
+              {filteredEmployees.map(employee => (
+                <tr key={employee.id}>
                   <td style={styles.tableCell}>{employee.name}</td>
                   <td style={styles.tableCell}>{employee.age}</td>
                   <td style={styles.tableCell}>{employee.gender}</td>
@@ -239,13 +247,13 @@ const ViewEmployees = () => {
                     <div style={styles.actions}>
                       <button
                         style={styles.editButton}
-                        onClick={() => handleEdit(index)}
+                        onClick={() => handleEdit(employee.id)}
                       >
                         Edit
                       </button>
                       <button
                         style={styles.deleteButton}
-                        onClick={() => handleDelete(index)}
+                        onClick={() => handleDelete(employee.id)}
                       >
                         Delete
                       </button>
